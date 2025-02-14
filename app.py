@@ -2,11 +2,17 @@ import streamlit as st
 import requests
 
 TITLE = "Welcome to Talking Heads AI"
+CHAT_SPACE_HEIGHT = 800
 
 API_URL_MODELS = "http://192.168.0.122:1234/v1/models"
 API_URL_CHAT = "http://192.168.0.122:1234/v1/chat/completions"
 model_name = ""
 prompt = ""
+
+def load_css(filename):
+    with open(filename, "r") as f:
+        css = f.read()
+    st.markdown(f"""<style>{css}</style>""", unsafe_allow_html=True)
 
 # retrieve LLM response
 def get_llm_response(response):
@@ -15,26 +21,16 @@ def get_llm_response(response):
 
 def main():
     st.set_page_config(layout="wide")
-    st.title(TITLE)
-    st.markdown("""
-        <style>
-        .block-container {
-            padding-top: 2rem;
-            padding-right: 0rem;
-            padding-left: 0rem;
-            padding-bottom: 0rem;
-            text-align: center
-        }
-        </style>
-    """,
-    unsafe_allow_html=True
-    )
-    col_left, col_center, col_right = st.columns([1, 2, 1], border=True)
+    load_css("styles.css")
+    title = st.title(TITLE)
 
+    col_left, col_chat, col_right = st.columns([1, 2, 1], border=True)
+
+    with col_chat:
+        st.markdown('<div class="chat-space">', unsafe_allow_html=True)
+        st.write("This is a column element affected by css")
+        st.markdown("</div>", unsafe_allow_html=True)
     
-
-
-
 
 
 # Construct the message for LLM server
