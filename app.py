@@ -25,11 +25,30 @@ def main():
     title = st.title(TITLE)
 
     col_left, col_chat, col_right = st.columns([1, 2, 1], border=True)
+    
+    with col_left:
+        st.markdown('<div class="modelA">', unsafe_allow_html=True)
+        first_prompt_A = st.text_input("Ask model A:")
+        #print("prompt A is: ", first_prompt_A)
+        model_asked = "model A" if first_prompt_A != "" else ""
+
+        st.markdown("</div>", unsafe_allow_html=True)
+    with col_right:
+        st.markdown('<div class="modelB">', unsafe_allow_html=True)
+        first_prompt_B = st.text_input("Ask model B:")
+        #print("prompt B is: ", first_prompt_B)
+        model_asked = "model B" if first_prompt_B != "" else ""
+        
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col_chat:
         st.markdown('<div class="chat-space">', unsafe_allow_html=True)
-        st.write("This is a column element affected by css")
+
+        st.write("Your initial prompt to " + model_asked)
+        st.caption("[ " + first_prompt_A + " ]")
+
         st.markdown("</div>", unsafe_allow_html=True)
+
     
 
 
