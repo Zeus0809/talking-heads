@@ -14,42 +14,74 @@ def load_css(filename):
         css = f.read()
     st.markdown(f"""<style>{css}</style>""", unsafe_allow_html=True)
 
-# retrieve LLM response
 def get_llm_response(response):
     json = response.json()
     return json["choices"][0]["message"]["content"]
 
+# Input callback method
+def begin_conversation():
+
+    input_a = st.session_state.input_a.strip()
+    input_b = st.session_state.input_b.strip()
+
+    if input_a and not input_b: # model A was asked
+        st.session_state.initial_prompt = input_a
+        st.session_state.model_asked = "model A"
+        st.session_state.talk_started = True
+    elif input_b and not input_a: # model A was asked
+        st.session_state.initial_prompt = input_b
+        st.session_state.model_asked = "model B"
+        st.session_state.talk_started = True
+    else: # both inputs left blank
+        st.session_state.initial_prompt = ""
+        st.session_state.model_asked = ""
+        st.session_state.talk_started = False
+
+    # clear inputs
+    st.session_state.input_a = ""
+    st.session_state.input_b = ""
+
+    # blur focus with JS
+    st.markdown("<script>document.activeElement.blur()</script>", unsafe_allow_html=True)
+
 def main():
     st.set_page_config(layout="wide")
     load_css("styles.css")
-    title = st.title(TITLE)
+    st.title(TITLE)
+
+    # Initialize params in session state
+    if "input_a" not in st.session_state:
+        st.session_state["input_a"] = ""
+    if "input_b" not in st.session_state:
+        st.session_state["input_b"] = ""
+    if "talk_started" not in st.session_state:
+        st.session_state["talk_started"] = False
+    if "initial_prompt" not in st.session_state:
+        st.session_state["initial_prompt"] = ""
+    if "model_asked" not in st.session_state:
+        st.session_state["model_asked"] = ""
 
     col_left, col_chat, col_right = st.columns([1, 2, 1], border=True)
     
     with col_left:
         st.markdown('<div class="modelA">', unsafe_allow_html=True)
-        first_prompt_A = st.text_input("Ask model A:")
-        #print("prompt A is: ", first_prompt_A)
-        model_asked = "model A" if first_prompt_A != "" else ""
-
+        st.text_input("Ask model A:", key="input_a", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
+
     with col_right:
         st.markdown('<div class="modelB">', unsafe_allow_html=True)
-        first_prompt_B = st.text_input("Ask model B:")
-        #print("prompt B is: ", first_prompt_B)
-        model_asked = "model B" if first_prompt_B != "" else ""
-        
+        st.text_input("Ask model B:", key="input_b", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
 
     with col_chat:
         st.markdown('<div class="chat-space">', unsafe_allow_html=True)
 
-        st.write("Your initial prompt to " + model_asked)
-        st.caption("[ " + first_prompt_A + " ]")
+        st.write("To begin this conversation, you asked " + st.session_state.model_asked + ":")
+        st.caption("“ *" + st.session_state.initial_prompt + "* ”")
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-    
+    # st.write(st.session_state)
 
 
 # Construct the message for LLM server
