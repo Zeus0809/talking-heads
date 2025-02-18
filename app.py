@@ -2,12 +2,12 @@ import streamlit as st
 import requests
 
 TITLE = "Welcome to Talking Heads AI"
-CHAT_SPACE_HEIGHT = 800
+CHAT_SPACE_HEIGHT = 660
 
 API_URL_MODELS = "http://192.168.0.122:1234/v1/models"
 API_URL_CHAT = "http://192.168.0.122:1234/v1/chat/completions"
-model_name = ""
-prompt = ""
+
+MODELS = ["DeepSeek Qwen", "Mistral Instruct"]
 
 def load_css(filename):
     with open(filename, "r") as f:
@@ -60,39 +60,54 @@ def main():
         st.session_state["initial_prompt"] = ""
     if "model_asked" not in st.session_state:
         st.session_state["model_asked"] = ""
+    if "left_model" not in st.session_state:
+        st.session_state["left_model"] = ""
+    if "right_model" not in st.session_state:
+        st.session_state["right_model"] = ""
 
-    col_left, col_chat, col_right = st.columns([1, 2, 1], border=True)
-    
-    with col_left:
-        st.markdown('<div class="modelA">', unsafe_allow_html=True)
+    # Header (3 tiles)
+    ask_left, initial_propmt_box, ask_right = st.columns([1, 2, 1], border=False)
+    with ask_left:
+        st.markdown('<div class="ask-left">', unsafe_allow_html=True)
         st.text_input("Ask model A:", key="input_a", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
-
-    with col_right:
-        st.markdown('<div class="modelB">', unsafe_allow_html=True)
+    with ask_right:
+        st.markdown('<div class="ask-right">', unsafe_allow_html=True)
         st.text_input("Ask model B:", key="input_b", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
-
-    with col_chat:
-        st.markdown('<div class="chat-space">', unsafe_allow_html=True)
-
+    with initial_propmt_box:
+        st.markdown('<div class="initial-prompt">', unsafe_allow_html=True)
         st.write("To begin this conversation, you asked " + st.session_state.model_asked + ":")
         st.caption("“ *" + st.session_state.initial_prompt + "* ”")
+        st.markdown("</div>", unsafe_allow_html=True)
 
+    # Body (3 tiles)
+    model_left, chat_area, model_right = st.columns([1, 2, 1], border=True)
+    with model_left:
+        st.markdown('<div class="model-left">', unsafe_allow_html=True)
+        st.segmented_control("", MODELS, selection_mode="single", key="left_model")
+        st.markdown("</div>", unsafe_allow_html=True)
+    with model_right:
+        st.markdown('<div class="model-right">', unsafe_allow_html=True)
+        st.segmented_control("", MODELS, selection_mode="single", key="right_model")
+        st.markdown("</div>", unsafe_allow_html=True)
+    with chat_area:
+        st.markdown('<div class="chat-area">', unsafe_allow_html=True)
+        st.container(height=CHAT_SPACE_HEIGHT, border=False)
         st.markdown("</div>", unsafe_allow_html=True)
 
     # st.write(st.session_state)
 
 
 # Construct the message for LLM server
-messages = [{"role" : "user", "content": prompt}]
+# messages = [{"role" : "user", "content": prompt}]
 
-# Construct the payload for LLM
-payload = {
-    "model" : model_name ,
-    "messages" : messages ,
-    "max_tokens" : 100
-}
+# # Construct the payload for LLM
+# payload = {
+#     "model" : model_name ,
+#     "messages" : messages ,
+#     "max_tokens" : 100
+# }
 
 
 # API call to LLM

@@ -10,23 +10,44 @@
     padding: 0rem;
 }
 
- /* chat column */
-div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
-    background-color: rgb(52, 52, 52);
-}
-
-/* model A on the left */
+/* Ask model A input box on the left */
 div[data-testid="stHorizontalBlock"] > div:nth-child(1) {
     background-color: rgb(0, 0, 0);
     padding-left: 1rem;
     padding-right: 1rem;
     margin-left: 0.5rem;
+    border-radius: 0.5rem;
 }
 
-/* model B on the right */
+/* chat header box */
+div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
+    background-color: rgb(52, 52, 52);
+    border-radius: 0.5rem;
+}
+
+/* Ask model B input box on the right */
 div[data-testid="stHorizontalBlock"] > div:nth-child(3) {
     background-color: rgb(0, 0, 0);
     padding-left: 1rem;
     padding-right: 1rem;
     margin-right: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+/* model A on the left */
+div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(1) {
+    background-color: rgb(169, 111, 111);
+    border-radius: 0.5rem;
+}
+
+/* main chat area */
+div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(2) {
+    background-color: rgb(52, 52, 52);
+    border-radius: 0.5rem;
+}
+
+/* model B on the right */
+div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(3) {
+    background-color: rgb(0, 0, 0);
+    border-radius: 0.5rem;
 }
