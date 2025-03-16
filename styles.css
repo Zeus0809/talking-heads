@@ -34,20 +34,78 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(3) {
     border-radius: 0.5rem;
 }
 
-/* model A on the left */
+/* stop chat button */
 div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(1) {
-    background-color: rgb(169, 111, 111);
+    background-color: rgb(142, 20, 20);
     border-radius: 0.5rem;
+    display: flex;
 }
 
-/* main chat area */
+/* chat area */
 div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(2) {
     background-color: rgb(52, 52, 52);
     border-radius: 0.5rem;
 }
 
-/* model B on the right */
-div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(3) {
-    background-color: rgb(0, 0, 0);
-    border-radius: 0.5rem;
+/* Chat message styling */
+.stChatMessage {
+    padding: 0.5rem 0;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Left model messages (robot) */
+.stChatMessage[data-testid="stChatMessage"] .stChatMessageContent:has(img[alt="🤖"]) {
+    background-color: #e9f5ff !important;
+    border-radius: 15px 15px 15px 0 !important;
+    padding: 12px 18px !important;
+    border-left: 4px solid #2196F3 !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Right model messages (alien) */
+.stChatMessage[data-testid="stChatMessage"] .stChatMessageContent:has(img[alt="👽"]) {
+    background-color: #f0f7f0 !important;
+    border-radius: 15px 15px 0 15px !important;
+    padding: 12px 18px !important;
+    border-right: 4px solid #4CAF50 !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Message text styling */
+.stChatMessage .stMarkdown p {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+/* Avatar styling */
+.stChatMessage .stChatMessageAvatar img {
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation for messages appearing */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Improve the container styling */
+[data-testid="stVerticalBlock"] > [data-testid="stVerticalBlock"] {
+    background-color: #fafafa;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* Style the STOP CONVERSATION button */
+button[kind="secondary"] {
+    background-color: #410000 !important;
+    color: white !important;
+    font-weight: bold !important;
+    transition: all 0.3s ease !important;
+}
+
+button[kind="secondary"]:hover {
+    background-color: #ff0000 !important;
+    box-shadow: 0 4px 8px rgba(255, 0, 0, 0.2) !important;
 }
