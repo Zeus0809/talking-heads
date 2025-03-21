@@ -16,10 +16,6 @@ def load_css(filename):
         css = f.read()
     st.markdown(f"""<style>{css}</style>""", unsafe_allow_html=True)
 
-def get_llm_response(response):
-    json = response.json()
-    return json["choices"][0]["message"]["content"]
-
 # Input callback method
 def begin_conversation():
 
@@ -32,7 +28,7 @@ def begin_conversation():
         st.session_state.initial_prompt = input_a
         st.session_state.model_asked = model_a
         st.session_state.talk_started = True
-    elif input_b and not input_a: # model A was asked
+    elif input_b and not input_a: # model B was asked
         st.session_state.initial_prompt = input_b
         st.session_state.model_asked = model_b
         st.session_state.talk_started = True
@@ -55,7 +51,7 @@ def main():
 
     # start ollama
     ollama_chat.start_ollama()
-    time.sleep(1) # wait for ollama to start
+    time.sleep(0.5) # wait for ollama to start
     # fetch list of models
     global model_names
     model_names = ollama_chat.get_models()
@@ -117,7 +113,11 @@ def main():
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
         st.markdown('<div class="chat-area">', unsafe_allow_html=True)
-        st.container(height=CHAT_SPACE_HEIGHT, border=False)
+        with st.container(height=CHAT_SPACE_HEIGHT, border=False):
+            if st.session_state.talk_started:
+                first_model_reply = ollama_chat.get_llm_response(st.session_state.model_asked, "You are a really sarcastic friend.", message=st.session_state.initial_prompt)
+                st.write(first_model_reply)
+
         st.markdown("</div>", unsafe_allow_html=True)
 
     st.write(st.session_state)
