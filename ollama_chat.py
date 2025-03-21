@@ -5,6 +5,7 @@ import time
 import pprint
 
 ollama_process = None
+SYSTEM_CONCISE = "Keep your responses within 50 words. "
 
 def start_ollama():
     global ollama_process
@@ -22,4 +23,8 @@ def get_models():
     models = [model["name"] for model in response["models"]]
     return models
 
+def get_llm_response(model, system_prompt, message, chat_history=None):
+    raw_response = ollama.chat(model=model, messages=[{"role": "system", "content": SYSTEM_CONCISE + system_prompt}, {"role": 'user', "content": message}])
+    model_response = raw_response['message']['content']
+    return model_response
 
