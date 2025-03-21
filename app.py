@@ -114,23 +114,6 @@ def main():
     st.write(st.session_state)
 
 
-# Construct the message for LLM server
-# messages = [{"role" : "user", "content": prompt}]
-
-# # Construct the payload for LLM
-# payload = {
-#     "model" : model_name ,
-#     "messages" : messages ,
-#     "max_tokens" : 100
-# }
-
-
-# API call to LLM
-# response = requests.post(API_URL_CHAT, json=payload)
-# if response.status_code == 200 :
-#     print("AI: ", get_llm_response(response))
-# else :
-#     print("Error: ", response.status_code, response.text)
 
 
 
