@@ -1,6 +1,7 @@
 import streamlit as st
-import requests
 import random
+import ollama_chat
+import time
 
 TITLE = "Welcome to Talking Heads AI"
 CHAT_SPACE_HEIGHT = 660
@@ -8,7 +9,7 @@ CHAT_SPACE_HEIGHT = 660
 API_URL_MODELS = "http://192.168.0.122:1234/v1/models"
 API_URL_CHAT = "http://192.168.0.122:1234/v1/chat/completions"
 
-MODEL_NAMES = ["deepseek-r1-distill-qwen-7b", "mistral-7b-instruct-v0.3", "llama-2-7b-chat"]
+model_names = []
 
 def load_css(filename):
     with open(filename, "r") as f:
@@ -52,6 +53,14 @@ def main():
     load_css("styles.css")
     st.title(TITLE)
 
+    # start ollama
+    ollama_chat.start_ollama()
+    time.sleep(1) # wait for ollama to start
+    # fetch list of models
+    global model_names
+    model_names = ollama_chat.get_models()
+    print(model_names)
+
     # Initialize params in session state
     if "input_a" not in st.session_state:
         st.session_state["input_a"] = ""
@@ -64,9 +73,9 @@ def main():
     if "model_asked" not in st.session_state:
         st.session_state["model_asked"] = ""
     if "left_model" not in st.session_state:
-        st.session_state["left_model"] = random.choice(MODEL_NAMES)
+        st.session_state["left_model"] = random.choice(model_names)
     if "right_model" not in st.session_state:
-        st.session_state["right_model"] = random.choice(MODEL_NAMES)
+        st.session_state["right_model"] = random.choice(model_names)
 
     # Header (3 tiles)
     ask_left, initial_propmt_box, ask_right = st.columns([1, 2, 1], border=False)
@@ -100,11 +109,11 @@ def main():
     model_left, chat_area, model_right = st.columns([1, 2, 1], border=True)
     with model_left:
         st.markdown('<div class="model-left">', unsafe_allow_html=True)
-        st.segmented_control("Pick a model:", MODEL_NAMES, selection_mode="single", key="left_model")
+        st.segmented_control("Pick a model:", model_names, selection_mode="single", key="left_model")
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
         st.markdown('<div class="model-right">', unsafe_allow_html=True)
-        st.segmented_control("Pick a model:", MODEL_NAMES, selection_mode="single", key="right_model")
+        st.segmented_control("Pick a model:", model_names, selection_mode="single", key="right_model")
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
         st.markdown('<div class="chat-area">', unsafe_allow_html=True)
