@@ -112,12 +112,13 @@ def main():
                 # initialize the conversation
                 current_model = st.session_state.model_asked
                 current_prompt = st.session_state.initial_prompt
-                current_system_prompt = "You are a really sarcastic friend."
-                max_turns = 6
+                current_system_prompt = ""
+                max_turns = 4
 
                 for turn in range(max_turns):
                     # get the response from the current model and display it
                     model_reply = ollama_tools.get_llm_response(current_model, current_system_prompt, message=current_prompt)
+                    model_reply = ollama_tools.remove_reasoning(model_reply)
                     st.write(model_reply)
 
                     # update the prompt for the next model

@@ -3,6 +3,7 @@ import requests
 import subprocess
 import time
 import pprint
+import re
 
 ollama_process = None
 SYSTEM_CONCISE = "Keep your responses no more than 50 words. "
@@ -28,3 +29,5 @@ def get_llm_response(model, system_prompt, message, chat_history=None):
     model_response = raw_response['message']['content']
     return model_response
 
+def remove_reasoning(response):
+    return re.sub(r'<think>.*?</think>', '', response, flags=re.DOTALL)
