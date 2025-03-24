@@ -5,7 +5,7 @@ import time
 import pprint
 
 ollama_process = None
-SYSTEM_CONCISE = "Keep your responses within 50 words. "
+SYSTEM_CONCISE = "Keep your responses no more than 50 words. "
 
 def start_ollama():
     global ollama_process

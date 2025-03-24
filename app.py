@@ -108,8 +108,25 @@ def main():
         st.markdown('<div class="chat-area">', unsafe_allow_html=True)
         with st.container(height=CHAT_SPACE_HEIGHT, border=False):
             if st.session_state.talk_started:
-                first_model_reply = ollama_tools.get_llm_response(st.session_state.model_asked, "You are a really sarcastic friend.", message=st.session_state.initial_prompt)
-                st.write(first_model_reply)
+
+                # initialize the conversation
+                current_model = st.session_state.model_asked
+                current_prompt = st.session_state.initial_prompt
+                current_system_prompt = "You are a really sarcastic friend."
+                max_turns = 6
+
+                for turn in range(max_turns):
+                    # get the response from the current model and display it
+                    model_reply = ollama_tools.get_llm_response(current_model, current_system_prompt, message=current_prompt)
+                    st.write(model_reply)
+
+                    # update the prompt for the next model
+                    current_prompt = model_reply
+
+                    # update the model for the next turn
+                    current_model = st.session_state.right_model if current_model == st.session_state.left_model else st.session_state.left_model
+
+
 
         st.markdown("</div>", unsafe_allow_html=True)
 
