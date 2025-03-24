@@ -10,7 +10,7 @@
     padding: 0rem;
 }
 
-/* Ask model A input box on the left */
+/* Ask model A input box on the left + pick a model on the left */
 div[data-testid="stHorizontalBlock"] > div:nth-child(1) {
     background-color: rgb(0, 0, 0);
     padding-left: 1rem;
@@ -19,13 +19,13 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(1) {
     border-radius: 0.5rem;
 }
 
-/* chat header box */
+/* chat header box + chat area */
 div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
     background-color: rgb(52, 52, 52);
     border-radius: 0.5rem;
 }
 
-/* Ask model B input box on the right */
+/* Ask model B input box on the right + pick a model on the right */
 div[data-testid="stHorizontalBlock"] > div:nth-child(3) {
     background-color: rgb(0, 0, 0);
     padding-left: 1rem;
@@ -34,20 +34,9 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(3) {
     border-radius: 0.5rem;
 }
 
-/* model A on the left */
-div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(1) {
-    background-color: rgb(169, 111, 111);
+  /* {
+    background-color: rgb(83, 146, 255) !important;
+    padding: 0.5rem;
     border-radius: 0.5rem;
-}
+} */
 
-/* main chat area */
-div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(2) {
-    background-color: rgb(52, 52, 52);
-    border-radius: 0.5rem;
-}
-
-/* model B on the right */
-div[data-testid="stHorizontalBlock"]:nth-of-type(2) > div:nth-child(3) {
-    background-color: rgb(0, 0, 0);
-    border-radius: 0.5rem;
-}
