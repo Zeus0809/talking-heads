@@ -17,13 +17,11 @@ def estimate_content_height(text: str) -> int:
     total_lines = math.ceil(len(text) / MAX_CHARS_PER_LINE)
     line_height = FONT_SIZE * LINE_HEIGHT_MULTIPLIER
     content_height = total_lines * line_height # add padding
-    print(f"content_height: {content_height}, total_lines: {total_lines}")
+    #print(f"content_height: {content_height}, total_lines: {total_lines}")
     return max(content_height, 32)
 
 # This function defines css styles for model response boxes, produces an html string and embeds it into the webpage for every message.
 def render_model_response(text: str, model_side: str) -> None:
-
-    print(len(text))
 
     content_width = estimate_content_width(text)
     content_height = estimate_content_height(text)

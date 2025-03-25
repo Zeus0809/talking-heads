@@ -43,6 +43,7 @@ def begin_conversation():
 def main():
     st.set_page_config(layout="wide")
     load_css("styles.css")
+
     st.title(TITLE)
 
     # start ollama
@@ -51,7 +52,10 @@ def main():
 
     # Initialize params in session state
     if "model_names" not in st.session_state:
-        st.session_state["model_names"] = ollama_tools.get_models()
+        model_names = ollama_tools.get_models()
+        st.session_state["model_names"] = {}
+        st.session_state["model_names"]["left_set"] = [model_names[0], model_names[2], model_names[3]]
+        st.session_state["model_names"]["right_set"] = [model_names[1], model_names[4], model_names[6]]
     if "input_a" not in st.session_state:
         st.session_state["input_a"] = ""
     if "input_b" not in st.session_state:
@@ -63,9 +67,9 @@ def main():
     if "model_asked" not in st.session_state:
         st.session_state["model_asked"] = ""
     if "left_model" not in st.session_state:
-        st.session_state["left_model"] = randomize(st.session_state["model_names"])
+        st.session_state["left_model"] = randomize(st.session_state["model_names"]["left_set"])
     if "right_model" not in st.session_state:
-        st.session_state["right_model"] = randomize(st.session_state["model_names"])
+        st.session_state["right_model"] = randomize(st.session_state["model_names"]["right_set"])
 
     # Header (3 tiles)
     ask_left, initial_propmt_box, ask_right = st.columns([1, 2, 1], border=False)
@@ -75,9 +79,9 @@ def main():
         if st.session_state.left_model == None: # in case user deselects a model
             left_alias = "🤗"
         else:
-            left_alias = st.session_state.left_model.split("-")[0]
+            left_alias = st.session_state.left_model
         
-        st.text_input(f"Ask {left_alias}:", key="input_a", on_change=begin_conversation)
+        st.text_input(f"Ask `{left_alias}`:", key="input_a", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
     with ask_right:
         st.markdown('<div class="ask-right">', unsafe_allow_html=True)
@@ -85,9 +89,9 @@ def main():
         if st.session_state.right_model == None: # in case user deselects a model
             right_alias = "🤗"
         else:
-            right_alias = st.session_state.right_model.split("-")[0]
+            right_alias = st.session_state.right_model
 
-        st.text_input(f"Ask {right_alias}:", key="input_b", on_change=begin_conversation)
+        st.text_input(f"Ask `{right_alias}`:", key="input_b", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
     with initial_propmt_box:
         st.markdown('<div class="initial-prompt">', unsafe_allow_html=True)
@@ -99,11 +103,11 @@ def main():
     model_left, chat_area, model_right = st.columns([1, 2, 1], border=True)
     with model_left:
         st.markdown('<div class="model-left">', unsafe_allow_html=True)
-        st.segmented_control("Pick a model:", st.session_state.model_names, selection_mode="single", key="left_model")
+        st.segmented_control("Pick a model:", st.session_state.model_names["left_set"], selection_mode="single", key="left_model")
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
         st.markdown('<div class="model-right">', unsafe_allow_html=True)
-        st.segmented_control("Pick a model:", st.session_state.model_names, selection_mode="single", key="right_model")
+        st.segmented_control("Pick a model:", st.session_state.model_names["right_set"], selection_mode="single", key="right_model")
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
         with st.container(height=CHAT_SPACE_HEIGHT, border=False):
