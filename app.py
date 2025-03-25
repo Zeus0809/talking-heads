@@ -2,6 +2,7 @@ import streamlit as st
 from random import choice as randomize
 import ollama_tools
 import time
+import embedded_styles
 
 TITLE = "Welcome to Talking Heads AI"
 CHAT_SPACE_HEIGHT = 660
@@ -119,8 +120,9 @@ def main():
                     # get the response from the current model and display it
                     model_reply = ollama_tools.get_llm_response(current_model, current_system_prompt, message=current_prompt)
                     model_reply = ollama_tools.remove_reasoning(model_reply)
+                    model_side = "left" if current_model == st.session_state.left_model else "right"
                     
-                    st.write(model_reply)
+                    embedded_styles.render_model_response(model_reply.strip(), model_side)
                    
                     # update the prompt for the next model
                     current_prompt = model_reply

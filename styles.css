@@ -34,9 +34,8 @@ div[data-testid="stHorizontalBlock"] > div:nth-child(3) {
     border-radius: 0.5rem;
 }
 
-  /* {
-    background-color: rgb(83, 146, 255) !important;
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-} */
+.stIFrame {
+    /* border: 2px solid rgb(0, 253, 80); */
+    margin-bottom: -0.5rem !important;
+}
 
