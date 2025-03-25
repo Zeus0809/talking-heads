@@ -5,7 +5,7 @@ import time
 import embedded_styles
 
 TITLE = "Welcome to Talking Heads AI"
-CHAT_SPACE_HEIGHT = 660
+CHAT_SPACE_HEIGHT = 510
 
 def load_css(filename):
     with open(filename, "r") as f:
@@ -81,7 +81,7 @@ def main():
         else:
             left_alias = st.session_state.left_model
         
-        st.text_input(f"Ask `{left_alias}`:", key="input_a", on_change=begin_conversation)
+        st.text_input(f"Ask `{left_alias}`:", placeholder="Hit ENTER when done", key="input_a", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
     with ask_right:
         st.markdown('<div class="ask-right">', unsafe_allow_html=True)
@@ -91,7 +91,7 @@ def main():
         else:
             right_alias = st.session_state.right_model
 
-        st.text_input(f"Ask `{right_alias}`:", key="input_b", on_change=begin_conversation)
+        st.text_input(f"Ask `{right_alias}`:", placeholder="Hit ENTER when done", key="input_b", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
     with initial_propmt_box:
         st.markdown('<div class="initial-prompt">', unsafe_allow_html=True)
@@ -103,11 +103,12 @@ def main():
     model_left, chat_area, model_right = st.columns([1, 2, 1], border=True)
     with model_left:
         st.markdown('<div class="model-left">', unsafe_allow_html=True)
-        st.segmented_control("Pick a model:", st.session_state.model_names["left_set"], selection_mode="single", key="left_model")
+        st.pills("Pick a model:", st.session_state.model_names["left_set"], selection_mode="single", key="left_model")
+        
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
         st.markdown('<div class="model-right">', unsafe_allow_html=True)
-        st.segmented_control("Pick a model:", st.session_state.model_names["right_set"], selection_mode="single", key="right_model")
+        st.pills("Pick a model:", st.session_state.model_names["right_set"], selection_mode="single", key="right_model")
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
         with st.container(height=CHAT_SPACE_HEIGHT, border=False):
@@ -136,7 +137,7 @@ def main():
 
 
 
-    st.write(st.session_state)
+    #st.write(st.session_state)
 
 
 
