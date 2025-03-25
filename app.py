@@ -104,7 +104,14 @@ def main():
     with model_left:
         st.markdown('<div class="model-left">', unsafe_allow_html=True)
         st.pills("Pick a model:", st.session_state.model_names["left_set"], selection_mode="single", key="left_model")
-        
+        with st.empty():
+            st.markdown('<div style="height:350px;"></div>', unsafe_allow_html=True)
+        # New conversation button
+        if st.button("New Conversation"):
+            st.session_state.talk_started = False
+            st.session_state.initial_prompt = ""
+            st.session_state.model_asked = ""
+            st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
         st.markdown('<div class="model-right">', unsafe_allow_html=True)
@@ -137,7 +144,7 @@ def main():
 
 
 
-    #st.write(st.session_state)
+    st.write(st.session_state)
 
 
 
