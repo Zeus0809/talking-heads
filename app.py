@@ -114,7 +114,7 @@ def main():
                 current_model = st.session_state.model_asked
                 current_prompt = st.session_state.initial_prompt
                 current_system_prompt = ""
-                max_turns = 4
+                max_turns = 8
 
                 for turn in range(max_turns):
                     # get the response from the current model and display it
