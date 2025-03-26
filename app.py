@@ -41,10 +41,18 @@ def begin_conversation():
     st.markdown("<script>document.activeElement.blur()</script>", unsafe_allow_html=True)
 
 def main():
-    st.set_page_config(layout="wide")
+    st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
     load_css("styles.css")
 
     st.title(TITLE)
+
+    with st.sidebar:
+        # New conversation button
+        if st.button("New Conversation"):
+            st.session_state.talk_started = False
+            st.session_state.initial_prompt = ""
+            st.session_state.model_asked = ""
+            st.rerun()
 
     # start ollama
     ollama_tools.start_ollama()
@@ -70,6 +78,10 @@ def main():
         st.session_state["left_model"] = randomize(st.session_state["model_names"]["left_set"])
     if "right_model" not in st.session_state:
         st.session_state["right_model"] = randomize(st.session_state["model_names"]["right_set"])
+    if "left_system_prompt" not in st.session_state:
+        st.session_state["left_system_prompt"] = ollama_tools.DEFAULT_SYSTEM_PROMPT_LEFT
+    if "right_system_prompt" not in st.session_state:
+        st.session_state["right_system_prompt"] = ollama_tools.DEFAULT_SYSTEM_PROMPT_RIGHT
 
     # Header (3 tiles)
     ask_left, initial_propmt_box, ask_right = st.columns([1, 2, 1], border=False)
@@ -104,18 +116,12 @@ def main():
     with model_left:
         st.markdown('<div class="model-left">', unsafe_allow_html=True)
         st.pills("Pick a model:", st.session_state.model_names["left_set"], selection_mode="single", key="left_model")
-        with st.empty():
-            st.markdown('<div style="height:350px;"></div>', unsafe_allow_html=True)
-        # New conversation button
-        if st.button("New Conversation"):
-            st.session_state.talk_started = False
-            st.session_state.initial_prompt = ""
-            st.session_state.model_asked = ""
-            st.rerun()
+        st.text_area("System prompt:", key="left_system_prompt", placeholder=f"Give a role to {st.session_state.left_model}", height=300)
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
         st.markdown('<div class="model-right">', unsafe_allow_html=True)
         st.pills("Pick a model:", st.session_state.model_names["right_set"], selection_mode="single", key="right_model")
+        st.text_area("System prompt:", key="right_system_prompt", placeholder=f"Give a role to {st.session_state.right_model}", height=300)
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
         with st.container(height=CHAT_SPACE_HEIGHT, border=False):
@@ -125,19 +131,21 @@ def main():
                 # initialize the conversation
                 current_model = st.session_state.model_asked
                 current_prompt = st.session_state.initial_prompt
-                current_system_prompt = ""
+                current_system_prompt = st.session_state.left_system_prompt if current_model == st.session_state.left_model else st.session_state.right_system_prompt
                 max_turns = 8
 
                 for turn in range(max_turns):
                     # get the response from the current model and display it
                     model_reply = ollama_tools.get_llm_response(current_model, current_system_prompt, message=current_prompt)
-                    model_reply = ollama_tools.remove_reasoning(model_reply)
+                    #model_reply = ollama_tools.remove_reasoning(model_reply)
                     model_side = "left" if current_model == st.session_state.left_model else "right"
                     
                     embedded_styles.render_model_response(model_reply.strip(), model_side)
                    
                     # update the prompt for the next model
                     current_prompt = model_reply
+                    # update system prompt for next model
+                    current_system_prompt = st.session_state.right_system_prompt if current_model == st.session_state.left_model else st.session_state.left_system_prompt
 
                     # update the model for the next turn
                     current_model = st.session_state.right_model if current_model == st.session_state.left_model else st.session_state.left_model

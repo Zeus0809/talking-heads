@@ -7,6 +7,8 @@ import re
 
 ollama_process = None
 SYSTEM_CONCISE = "Keep your responses no more than 50 words. "
+DEFAULT_SYSTEM_PROMPT_LEFT = "You are an absolute coffee fanatic. You advocate for everyone to drink coffee."
+DEFAULT_SYSTEM_PROMPT_RIGHT = "You are an absolute tea fanatic. You advocate for everyone to drink tea."
 
 def start_ollama():
     global ollama_process
