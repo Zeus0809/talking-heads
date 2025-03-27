@@ -1,7 +1,7 @@
 import ollama
 import requests
 import subprocess
-import time
+import random
 import pprint
 import re
 
@@ -25,6 +25,33 @@ def get_models():
     response = requests.get("http://localhost:11434/api/tags").json()
     models = [model["name"] for model in response["models"]]
     return models
+
+def assign_model_aliases(model_names: list[str]) -> dict[str, str]:
+    model_data = {}
+    for model in model_names:
+        if "phi" in model:
+            model_data["Phi 3"] = model
+        elif "qwen" in model:
+            model_data["Qwen 2.5"] = model
+        elif "gemma" in model:
+            model_data["Gemma 3"] = model
+        elif "uncensored" in model:
+            model_data["Unhinged llama"] = model
+        elif "llama" in model and "uncensored" not in model:
+            model_data["Llama 2"] = model
+        elif "mistral" in model:
+            model_data["Mistral"] = model
+    return model_data
+
+def split_models_into_groups(model_data: dict[str, str]) -> tuple[dict[str, str], dict[str, str]]:
+    all_keys = list(model_data.keys())
+    random.shuffle(all_keys)
+    midpoint = len(all_keys) // 2
+    left_keys = all_keys[:midpoint]
+    right_keys = all_keys[midpoint:]
+    left_group = {key: model_data[key] for key in left_keys}
+    right_group = {key: model_data[key] for key in right_keys}
+    return left_group, right_group
 
 def get_llm_response(model, system_prompt, message, chat_history=None):
     raw_response = ollama.chat(model=model, messages=[{"role": "system", "content": SYSTEM_CONCISE + system_prompt}, {"role": 'user', "content": message}])
