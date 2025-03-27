@@ -137,7 +137,6 @@ def main():
                 for turn in range(max_turns):
                     # get the response from the current model and display it
                     model_reply = ollama_tools.get_llm_response(current_model, current_system_prompt, message=current_prompt)
-                    #model_reply = ollama_tools.remove_reasoning(model_reply)
                     model_side = "left" if current_model == st.session_state.left_model else "right"
                     
                     embedded_styles.render_model_response(model_reply.strip(), model_side)
@@ -152,7 +151,7 @@ def main():
 
 
 
-    st.write(st.session_state)
+    #st.write(st.session_state)
 
 
 

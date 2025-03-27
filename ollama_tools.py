@@ -13,7 +13,7 @@ DEFAULT_SYSTEM_PROMPT_RIGHT = "You are an absolute tea fanatic. You advocate for
 def start_ollama():
     global ollama_process
     if ollama_process is None:
-        ollama_process = subprocess.Popen(["ollama", "serve"])
+        ollama_process = subprocess.Popen(["/Applications/Ollama.app/Contents/MacOS/ollama", "serve"])
 
 def stop_ollama():
     global ollama_process

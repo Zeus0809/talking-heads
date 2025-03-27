@@ -8,6 +8,7 @@ LINE_HEIGHT_MULTIPLIER = 1.5
 CHAR_WIDTH = 0.6 * FONT_SIZE
 MAX_LINE_WIDTH = CONTAINER_WIDTH * MESSAGE_WIDTH_PERCENTAGE
 MAX_CHARS_PER_LINE = 69
+HEIGHT_REDUCER_MULTIPLIER = 10 # when message gets to 6 lines or longer, reduce the height by this multiplier * (total_lines - 5)
 
 def estimate_content_width(text: str) -> int:
     content_width = len(text) * CHAR_WIDTH
@@ -17,6 +18,8 @@ def estimate_content_height(text: str) -> int:
     total_lines = math.ceil(len(text) / MAX_CHARS_PER_LINE)
     line_height = FONT_SIZE * LINE_HEIGHT_MULTIPLIER
     content_height = total_lines * line_height # add padding
+    if total_lines > 3:
+        content_height -= HEIGHT_REDUCER_MULTIPLIER * (total_lines - 3)
     #print(f"content_height: {content_height}, total_lines: {total_lines}")
     return max(content_height, 32)
 
