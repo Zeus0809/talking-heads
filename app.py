@@ -154,13 +154,19 @@ def main():
                 for turn in range(st.session_state.max_turns):
                     # get the response from the current model and display it
                     current_model_name = get_model_name_by_alias(current_model_alias)
-                    model_reply = ollama_tools.get_llm_response(current_model_name, current_system_prompt, message=current_prompt)
                     model_side = "left" if current_model_alias == st.session_state.left_model_alias else "right"
-                    
-                    embedded_styles.render_model_response(model_reply.strip(), model_side)
-                   
+
+                    model_reply = ollama_tools.get_llm_response_streaming(current_model_name, current_system_prompt, message=current_prompt)
+
+                    with st.empty():
+                        model_full_message = ""
+                        for chunk in model_reply:
+                            model_full_message += chunk['message']['content']
+                            embedded_styles.render_model_response(model_full_message, model_side)
+                            time.sleep(0.1)
+                     
                     # update the prompt for the next model
-                    current_prompt = model_reply
+                    current_prompt = model_full_message
                     # update system prompt for next model
                     current_system_prompt = st.session_state.right_system_prompt if current_model_alias == st.session_state.left_model_alias else st.session_state.left_system_prompt
 

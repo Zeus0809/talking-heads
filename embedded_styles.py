@@ -70,4 +70,4 @@ def render_model_response(text: str, model_side: str) -> None:
     """
 
     # render the html string
-    components.html(message_html, height = content_height + FONT_SIZE * 1.3)
+    components.html(message_html, height = content_height + FONT_SIZE * 1.4)
