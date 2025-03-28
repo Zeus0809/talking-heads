@@ -45,6 +45,8 @@ def render_model_response(text: str, model_side: str) -> None:
         border-radius: 0.5rem;
         width: {content_width}px;
         height: {content_height}px;
+        transition: height 0.1s ease-in-out;
+        transition: width 0.1s ease-in-out;
     }}
     .model_response p {{
         margin: 0.5rem;

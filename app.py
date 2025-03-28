@@ -163,7 +163,7 @@ def main():
                         for chunk in model_reply:
                             model_full_message += chunk['message']['content']
                             embedded_styles.render_model_response(model_full_message, model_side)
-                            time.sleep(0.1)
+                            time.sleep(0.15)
                      
                     # update the prompt for the next model
                     current_prompt = model_full_message
