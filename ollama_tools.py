@@ -7,7 +7,7 @@ import re
 import json
 
 ollama_process = None
-SYSTEM_CONCISE = "Keep your responses no more than 50 words. "
+SYSTEM_CONCISE = "Keep your responses no more than 50 words."
 DEFAULT_SYSTEM_PROMPT_LEFT = "You are an absolute coffee fanatic. You advocate for everyone to drink coffee."
 DEFAULT_SYSTEM_PROMPT_RIGHT = "You are an absolute tea fanatic. You advocate for everyone to drink tea."
 
@@ -54,13 +54,19 @@ def split_models_into_groups(model_data: dict[str, str]) -> tuple[dict[str, str]
     right_group = {key: model_data[key] for key in right_keys}
     return left_group, right_group
 
-def get_llm_response(model, system_prompt, message, chat_history=None):
-    raw_response = ollama.chat(model=model, messages=[{"role": "system", "content": SYSTEM_CONCISE + system_prompt}, {"role": 'user', "content": message}])
+def get_llm_response(model, system_prompt, prompt):
+    raw_response = ollama.chat(model=model, messages=[{"role": "system", "content": SYSTEM_CONCISE + system_prompt}, {"role": 'user', "content": prompt}])
     model_response = raw_response['message']['content']
     return model_response
 
-def get_llm_response_streaming(model, system_prompt, message, chat_history=None):
-    streamed_response = ollama.chat(model=model, messages=[{"role": "system", "content": SYSTEM_CONCISE + system_prompt}, {"role": 'user', "content": message}], stream=True)
+def get_llm_response_streaming(model, system_prompt, prompt, chat_history):
+    print(f"\nchat_history: {chat_history}\n")
+    system_message = {"role": "system", "content": SYSTEM_CONCISE + " " + system_prompt} # goes 1st
+    user_message = {"role": "user", "content": prompt} # goes 3rd after chat_history
+    messages = [ system_message ]
+    messages.extend(chat_history)
+    messages.append(user_message)
+    streamed_response = ollama.chat(model=model, messages=messages, stream=True)                          
     return streamed_response
 
 def remove_reasoning(response):

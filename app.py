@@ -3,6 +3,7 @@ from random import choice as randomize
 import ollama_tools
 import time
 import embedded_styles
+import pprint
 
 TITLE = "Welcome to Talking Heads AI"
 CHAT_SPACE_HEIGHT = 510
@@ -49,7 +50,11 @@ def get_model_name_by_alias(alias: str) -> str:
         return st.session_state.model_data["all_models"].get(alias)
     except Exception as e:
         raise ValueError(e)
-    
+
+def update_conversation_log():
+    # This is only meant to change model aliases on the change of the pills widget
+    st.session_state.conversation_log = { st.session_state["left_model_alias"]: [], st.session_state["right_model_alias"]: [] }
+
 def main():
     st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
     load_css("styles.css")
@@ -89,17 +94,26 @@ def main():
         st.session_state["right_system_prompt"] = ollama_tools.DEFAULT_SYSTEM_PROMPT_RIGHT
     if "max_turns" not in st.session_state:
         st.session_state["max_turns"] = 6 # default to 6 messages per conversation
+    if "use_context" not in st.session_state:
+        st.session_state["use_context"] = True
+    if "conversation_log" not in st.session_state:
+        st.session_state["conversation_log"] = { st.session_state["left_model_alias"]: [], st.session_state["right_model_alias"]: [] }
 
     with st.sidebar:
         st.title("Conversation Settings")
+        # Max turns slider
+        st.slider("Messages to generate per conversation", min_value=2, max_value=50, step=1, key="max_turns")
+        # Use context
+        st.checkbox("Take context into account", key="use_context", help="If enabled, models will remember the context of the conversation.")
         # New conversation button
-        if st.button("New Conversation"):
+        if st.button("Reset Conversation"):
             st.session_state.talk_started = False
             st.session_state.initial_prompt = ""
             st.session_state.model_asked = ""
+            st.session_state.left_model_alias = randomize(list(st.session_state["model_data"]["left_group"].keys()))
+            st.session_state.right_model_alias = randomize(list(st.session_state["model_data"]["right_group"].keys()))
+            st.session_state.conversation_log = { st.session_state["left_model_alias"]: [], st.session_state["right_model_alias"]: [] }
             st.rerun()
-        # Max turns slider
-        st.slider("Messages to generate per conversation", min_value=2, max_value=50, step=1, key="max_turns")
 
     # Header (3 tiles)
     ask_left, initial_propmt_box, ask_right = st.columns([1, 2, 1], border=False)
@@ -133,12 +147,12 @@ def main():
     model_left, chat_area, model_right = st.columns([1, 2, 1], border=True)
     with model_left:
         st.markdown('<div class="model-left">', unsafe_allow_html=True)
-        st.pills("Pick a model:", st.session_state.model_data["left_group"].keys(), selection_mode="single", key="left_model_alias")
+        st.pills("Pick a model:", st.session_state.model_data["left_group"].keys(), selection_mode="single", key="left_model_alias", on_change=update_conversation_log)
         st.text_area("System prompt:", key="left_system_prompt", placeholder=f"Give a role to {st.session_state.left_model_alias}", height=300)
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
         st.markdown('<div class="model-right">', unsafe_allow_html=True)
-        st.pills("Pick a model:", st.session_state.model_data["right_group"].keys(), selection_mode="single", key="right_model_alias")
+        st.pills("Pick a model:", st.session_state.model_data["right_group"].keys(), selection_mode="single", key="right_model_alias", on_change=update_conversation_log)
         st.text_area("System prompt:", key="right_system_prompt", placeholder=f"Give a role to {st.session_state.right_model_alias}", height=300)
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
@@ -156,22 +170,32 @@ def main():
                     current_model_name = get_model_name_by_alias(current_model_alias)
                     model_side = "left" if current_model_alias == st.session_state.left_model_alias else "right"
 
-                    model_reply = ollama_tools.get_llm_response_streaming(current_model_name, current_system_prompt, message=current_prompt)
+                    model_reply_generator = ollama_tools.get_llm_response_streaming(current_model_name, current_system_prompt, chat_history=st.session_state.conversation_log.get(current_model_alias), prompt=current_prompt)
 
+                    # Display model response
                     with st.empty():
                         model_full_message = ""
-                        for chunk in model_reply:
+                        for chunk in model_reply_generator:
                             model_full_message += chunk['message']['content']
                             embedded_styles.render_model_response(model_full_message, model_side)
                             time.sleep(0.15)
-                     
+                    
+                    # update conversation log for the model we just ran inference on
+                    if st.session_state.use_context:
+                        #    1) set current_prompt as user's content
+                        mcp_prompt = {"role": "user", "content": current_prompt}
+                        st.session_state.conversation_log[current_model_alias].append(mcp_prompt)
+                        #    2) set model_full_message as assistant's content
+                        mcp_response = {"role": "assistant", "content": model_full_message}
+                        st.session_state.conversation_log[current_model_alias].append(mcp_response)
+
                     # update the prompt for the next model
                     current_prompt = model_full_message
                     # update system prompt for next model
                     current_system_prompt = st.session_state.right_system_prompt if current_model_alias == st.session_state.left_model_alias else st.session_state.left_system_prompt
-
                     # update the model for the next turn
                     current_model_alias = st.session_state.right_model_alias if current_model_alias == st.session_state.left_model_alias else st.session_state.left_model_alias
+
 
 
 
