@@ -51,9 +51,15 @@ def get_model_name_by_alias(alias: str) -> str:
     except Exception as e:
         raise ValueError(e)
 
-def update_conversation_log():
-    # This is only meant to change model aliases on the change of the pills widget
-    st.session_state.conversation_log = { st.session_state["left_model_alias"]: [], st.session_state["right_model_alias"]: [] }
+def clear_conversation_log() -> None:
+    """Clear conversation history in case something gets reset. Used to reset the conversation."""
+    st.session_state.conversation_log["left_model_log"].clear()
+    st.session_state.conversation_log["right_model_log"].clear()
+    st.session_state.show_clear_button = False
+
+def update_system_prompts(new_prompt: str, side: str) -> None:
+    """Update system prompts in session state to preserve them across different models."""
+    st.session_state[f"{side}_system_prompt"] = new_prompt
 
 def main():
     st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
@@ -64,6 +70,7 @@ def main():
     # start ollama
     ollama_tools.start_ollama()
     time.sleep(0.5) # wait for ollama to start
+
 
     # Initialize params in session state
     if "model_data" not in st.session_state:
@@ -97,7 +104,9 @@ def main():
     if "use_context" not in st.session_state:
         st.session_state["use_context"] = True
     if "conversation_log" not in st.session_state:
-        st.session_state["conversation_log"] = { st.session_state["left_model_alias"]: [], st.session_state["right_model_alias"]: [] }
+        st.session_state["conversation_log"] = { "left_model_log": [], "right_model_log": [] }
+    if "show_clear_button" not in st.session_state:
+        st.session_state["show_clear_button"] = False
 
     with st.sidebar:
         st.title("Conversation Settings")
@@ -112,11 +121,11 @@ def main():
             st.session_state.model_asked = ""
             st.session_state.left_model_alias = randomize(list(st.session_state["model_data"]["left_group"].keys()))
             st.session_state.right_model_alias = randomize(list(st.session_state["model_data"]["right_group"].keys()))
-            st.session_state.conversation_log = { st.session_state["left_model_alias"]: [], st.session_state["right_model_alias"]: [] }
+            clear_conversation_log()
             st.rerun()
 
     # Header (3 tiles)
-    ask_left, initial_propmt_box, ask_right = st.columns([1, 2, 1], border=False)
+    ask_left, initial_prompt_box, ask_right = st.columns([1, 2, 1], border=False)
     with ask_left:
         st.markdown('<div class="ask-left">', unsafe_allow_html=True)
 
@@ -137,7 +146,7 @@ def main():
 
         st.text_input(f"Ask `{right_alias}`:", placeholder="Hit ENTER when done", key="input_b", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
-    with initial_propmt_box:
+    with initial_prompt_box:
         st.markdown('<div class="initial-prompt">', unsafe_allow_html=True)
         st.write("To begin this conversation, you asked `" + st.session_state.model_asked + "` :")
         st.caption("“ *" + st.session_state.initial_prompt + "* ”")
@@ -147,13 +156,17 @@ def main():
     model_left, chat_area, model_right = st.columns([1, 2, 1], border=True)
     with model_left:
         st.markdown('<div class="model-left">', unsafe_allow_html=True)
-        st.pills("Pick a model:", st.session_state.model_data["left_group"].keys(), selection_mode="single", key="left_model_alias", on_change=update_conversation_log)
-        st.text_area("System prompt:", key="left_system_prompt", placeholder=f"Give a role to {st.session_state.left_model_alias}", height=300)
+        st.pills("Pick a model:", st.session_state.model_data["left_group"].keys(), selection_mode="single", key="left_model_alias", on_change=clear_conversation_log)
+        left_sys_prompt = st.text_area("System prompt:", value=st.session_state.left_system_prompt, placeholder=f"Give a role to {st.session_state.left_model_alias}", height=300)
+        update_system_prompts(left_sys_prompt, "left")
+        st.session_state.show_clear_button = False
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
         st.markdown('<div class="model-right">', unsafe_allow_html=True)
-        st.pills("Pick a model:", st.session_state.model_data["right_group"].keys(), selection_mode="single", key="right_model_alias", on_change=update_conversation_log)
-        st.text_area("System prompt:", key="right_system_prompt", placeholder=f"Give a role to {st.session_state.right_model_alias}", height=300)
+        st.pills("Pick a model:", st.session_state.model_data["right_group"].keys(), selection_mode="single", key="right_model_alias", on_change=clear_conversation_log)
+        right_sys_prompt = st.text_area("System prompt:", value=st.session_state.right_system_prompt, placeholder=f"Give a role to {st.session_state.right_model_alias}", height=300)
+        update_system_prompts(right_sys_prompt, "right")
+        st.session_state.show_clear_button = False
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
         with st.container(height=CHAT_SPACE_HEIGHT, border=False):
@@ -170,7 +183,7 @@ def main():
                     current_model_name = get_model_name_by_alias(current_model_alias)
                     model_side = "left" if current_model_alias == st.session_state.left_model_alias else "right"
 
-                    model_reply_generator = ollama_tools.get_llm_response_streaming(current_model_name, current_system_prompt, chat_history=st.session_state.conversation_log.get(current_model_alias), prompt=current_prompt)
+                    model_reply_generator = ollama_tools.get_llm_response_streaming(current_model_name, current_system_prompt, chat_history=st.session_state.conversation_log.get(f"{model_side}_model_log"), prompt=current_prompt)
 
                     # Display model response
                     with st.empty():
@@ -184,10 +197,10 @@ def main():
                     if st.session_state.use_context:
                         #    1) set current_prompt as user's content
                         mcp_prompt = {"role": "user", "content": current_prompt}
-                        st.session_state.conversation_log[current_model_alias].append(mcp_prompt)
+                        st.session_state.conversation_log[f"{model_side}_model_log"].append(mcp_prompt)
                         #    2) set model_full_message as assistant's content
                         mcp_response = {"role": "assistant", "content": model_full_message}
-                        st.session_state.conversation_log[current_model_alias].append(mcp_response)
+                        st.session_state.conversation_log[f"{model_side}_model_log"].append(mcp_response)
 
                     # update the prompt for the next model
                     current_prompt = model_full_message
@@ -195,6 +208,17 @@ def main():
                     current_system_prompt = st.session_state.right_system_prompt if current_model_alias == st.session_state.left_model_alias else st.session_state.left_system_prompt
                     # update the model for the next turn
                     current_model_alias = st.session_state.right_model_alias if current_model_alias == st.session_state.left_model_alias else st.session_state.left_model_alias
+                
+                st.session_state.talk_started = False
+                st.session_state.show_clear_button = True
+
+            if st.session_state.show_clear_button:
+                if st.button("CLEAR CONVERSATION", use_container_width=True):
+                    st.session_state.initial_prompt = ""
+                    st.session_state.model_asked = ""
+                    clear_conversation_log()
+                    st.rerun()
+
 
 
 

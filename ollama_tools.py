@@ -60,7 +60,6 @@ def get_llm_response(model, system_prompt, prompt):
     return model_response
 
 def get_llm_response_streaming(model, system_prompt, prompt, chat_history):
-    print(f"\nchat_history: {chat_history}\n")
     system_message = {"role": "system", "content": SYSTEM_CONCISE + " " + system_prompt} # goes 1st
     user_message = {"role": "user", "content": prompt} # goes 3rd after chat_history
     messages = [ system_message ]
