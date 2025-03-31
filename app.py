@@ -136,6 +136,8 @@ def main():
             st.session_state.model_asked = ""
             st.session_state.left_model_alias = randomize(list(st.session_state["model_data"]["left_group"].keys()))
             st.session_state.right_model_alias = randomize(list(st.session_state["model_data"]["right_group"].keys()))
+            st.session_state.left_system_prompt = ollama_tools.DEFAULT_SYSTEM_PROMPT_LEFT
+            st.session_state.right_system_prompt = ollama_tools.DEFAULT_SYSTEM_PROMPT_RIGHT
             clear_conversation_log()
             st.rerun()
 
@@ -163,8 +165,12 @@ def main():
         st.markdown("</div>", unsafe_allow_html=True)
     with initial_prompt_box:
         st.markdown('<div class="initial-prompt">', unsafe_allow_html=True)
-        st.write("To begin this conversation, you asked `" + st.session_state.model_asked + "` :")
-        st.caption("“ *" + st.session_state.initial_prompt + "* ”")
+        if st.session_state.model_asked and st.session_state.initial_prompt:
+            st.write("To begin this conversation, you asked `" + st.session_state.model_asked + "` :")
+            st.caption("“ *" + st.session_state.initial_prompt + "* ”")
+        else:
+            st.write(f"To start a conversation, ask or say something to one of the models: {st.session_state.left_model_alias} or {st.session_state.right_model_alias}.")
+            st.caption("*[initial prompt goes here]*")
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Body (3 tiles)
@@ -228,7 +234,7 @@ def main():
 
             # Clear Conversation button
             if st.session_state.show_clear_button:
-                if st.button("CLEAR CONVERSATION", use_container_width=True):
+                if st.button("CLEAR CONVERSATION", use_container_width=False):
                     st.session_state.initial_prompt = ""
                     st.session_state.model_asked = ""
                     clear_conversation_log()
@@ -239,6 +245,7 @@ def main():
 
 
     st.write(st.session_state)
+    st.context.headers
 
 
 
