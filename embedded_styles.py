@@ -24,7 +24,7 @@ def estimate_content_height(text: str) -> int:
     return max(content_height, 32)
 
 # This function defines css styles for model response boxes, produces an html string and embeds it into the webpage for every message.
-def render_model_response(text: str, model_side: str) -> None:
+def render_model_response(text: str, placeholder: object, model_side: str) -> None:
 
     content_width = estimate_content_width(text)
     content_height = estimate_content_height(text)
@@ -72,4 +72,8 @@ def render_model_response(text: str, model_side: str) -> None:
     """
 
     # render the html string
-    components.html(message_html, height = content_height + FONT_SIZE * 1.5)
+    if placeholder:
+        with placeholder.container():
+            components.html(message_html, height = content_height + FONT_SIZE * 1.5)
+    else:
+        components.html(message_html, height = content_height + FONT_SIZE * 1.5)

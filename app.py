@@ -206,12 +206,19 @@ def main():
                     model_reply_generator = ollama_tools.get_llm_response_streaming(current_model_name, current_system_prompt, chat_history=st.session_state.conversation_log.get(f"{model_side}_model_log"), prompt=current_prompt)
 
                     # Display model response
-                    with st.empty():
-                        model_full_message = ""
-                        for chunk in model_reply_generator:
-                            model_full_message += chunk['message']['content']
-                            embedded_styles.render_model_response(model_full_message, model_side)
-                            time.sleep(0.15)
+                    placeholder = st.empty()
+                    with st.spinner(f"{current_model_alias} is thinking..."):
+                        # spin until the first chunk arrives
+                        first_chunk = next(model_reply_generator)["message"]["content"]
+                    # render first chunk
+                    embedded_styles.render_model_response(first_chunk, placeholder, model_side)
+                    time.sleep(0.15)
+                    model_full_message = first_chunk
+                    # keep iterating over the rest of the message
+                    for chunk in model_reply_generator:
+                        model_full_message += chunk['message']['content']
+                        embedded_styles.render_model_response(model_full_message, placeholder, model_side)
+                        time.sleep(0.15)
                     
                     # update conversation log for the model we just ran inference on
                     if st.session_state.use_context:

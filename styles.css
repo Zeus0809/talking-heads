@@ -10,9 +10,9 @@
     padding: 0rem;
 }
 
-header {
+/* header {
     visibility: hidden;
-}
+} */
 
 /* Ask model A input box on the left + pick a model on the left */
 div[data-testid="stHorizontalBlock"] > div:nth-child(1) {
