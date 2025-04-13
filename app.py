@@ -6,10 +6,10 @@ import embedded_styles
 import pprint
 import os
 from datetime import datetime
+import uuid
 
 TITLE = "Welcome to Talking Heads AI"
 CHAT_SPACE_HEIGHT = 510
-LOG_PATH = os.path.join(os.path.dirname(__file__), "app_debug.log")
 
 def load_css(filename):
     # getting an absolute path to css
@@ -78,6 +78,21 @@ def wait_for_ollama(timeout=30):
             pass
         time.sleep(1)
     raise RuntimeError(f"Ollama server did not become ready in {timeout} seconds.")
+
+def get_country_code():
+    lang = st.context.headers.get("Accept-Language", "")
+    if "-" in lang:
+        return lang.split(",")[0].split("-")[1].upper()
+    return "UNK"
+
+def get_log_file_path():
+    if "log_file_path" not in st.session_state:
+        country = get_country_code()
+        session_id = str(uuid.uuid4())[:8]
+        filename = f"debug_{country}_{session_id}.log"
+        full_path = os.path.join(os.path.dirname(__file__), filename)
+        st.session_state["log_file_path"] = full_path
+    return st.session_state.log_file_path
 
 def main():
     st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
@@ -272,12 +287,16 @@ def main():
 
     if st.session_state.show_clear_button:
         # log only once after conversation is finished
-        with open(LOG_PATH, 'a') as f:
+        log_path = get_log_file_path()
+        with open(log_path, 'a') as f:
             f.write("\n" + "="*50 + "\n")
             f.write(f"🕒 New session started: {datetime.now().isoformat()}\n")
             f.write("="*50 + "\n")
             pprint.pprint(dict(st.session_state), stream=f)
             pprint.pprint(dict(st.context.headers), stream=f)
+
+    st.write(st.context.headers["User-Agent"])
+    st.write(st.context.headers["Accept-Language"])
 
 
 if __name__ == "__main__":
