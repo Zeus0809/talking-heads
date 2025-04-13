@@ -4,12 +4,17 @@ import ollama_tools
 import time
 import embedded_styles
 import pprint
+import os
+from datetime import datetime
 
 TITLE = "Welcome to Talking Heads AI"
 CHAT_SPACE_HEIGHT = 510
+LOG_PATH = os.path.join(os.path.dirname(__file__), "app_debug.log")
 
 def load_css(filename):
-    with open(filename, "r") as f:
+    # getting an absolute path to css
+    css_path = os.path.join(os.path.dirname(__file__), filename)
+    with open(css_path, "r") as f:
         css = f.read()
     st.markdown(f"""<style>{css}</style>""", unsafe_allow_html=True)
 
@@ -61,6 +66,19 @@ def update_system_prompts(new_prompt: str, side: str) -> None:
     """Update system prompts in session state to preserve them across different models."""
     st.session_state[f"{side}_system_prompt"] = new_prompt
 
+def wait_for_ollama(timeout=30):
+    """Keep sending requests to ollama every second until it responds"""
+    import requests
+    for _ in range(timeout):
+        try:
+            res = requests.get("http://localhost:11434/api/tags")
+            if res.status_code == 200:
+                return True
+        except requests.exceptions.ConnectionError:
+            pass
+        time.sleep(1)
+    raise RuntimeError(f"Ollama server did not become ready in {timeout} seconds.")
+
 def main():
     st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
     load_css("styles.css")
@@ -69,7 +87,12 @@ def main():
 
     # start ollama
     ollama_tools.start_ollama()
-    time.sleep(0.5) # wait for ollama to start
+    with st.spinner("Waiting for Ollama to wake up... 🦙🦙🦙"):
+        try:
+            wait_for_ollama()
+        except RuntimeError:
+            st.warning("The LLM server failed to start on time. Try again.")
+            st.stop()
 
     # Initialize params in session state
     if "model_data" not in st.session_state:
@@ -247,16 +270,14 @@ def main():
                     clear_conversation_log()
                     st.rerun()
 
-
-
-
-
-    st.write(st.session_state)
-    st.context.headers
-
-
-
-
+    if st.session_state.show_clear_button:
+        # log only once after conversation is finished
+        with open(LOG_PATH, 'a') as f:
+            f.write("\n" + "="*50 + "\n")
+            f.write(f"🕒 New session started: {datetime.now().isoformat()}\n")
+            f.write("="*50 + "\n")
+            pprint.pprint(dict(st.session_state), stream=f)
+            pprint.pprint(dict(st.context.headers), stream=f)
 
 
 if __name__ == "__main__":
