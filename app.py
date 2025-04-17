@@ -89,7 +89,7 @@ def get_log_file_path():
     if "log_file_path" not in st.session_state:
         country = get_country_code()
         session_id = str(uuid.uuid4())[:8]
-        filename = f"debug_{country}_{session_id}.log"
+        filename = f"logs/debug_{country}_{session_id}.log"
         full_path = os.path.join(os.path.dirname(__file__), filename)
         st.session_state["log_file_path"] = full_path
     return st.session_state.log_file_path
@@ -292,11 +292,8 @@ def main():
             f.write("\n" + "="*50 + "\n")
             f.write(f"🕒 New session started: {datetime.now().isoformat()}\n")
             f.write("="*50 + "\n")
-            pprint.pprint(dict(st.session_state), stream=f)
+            pprint.pprint(dict(st.session_state.conversation_log), stream=f)
             pprint.pprint(dict(st.context.headers), stream=f)
-
-    st.write(st.context.headers["User-Agent"])
-    st.write(st.context.headers["Accept-Language"])
 
 
 if __name__ == "__main__":
