@@ -189,7 +189,7 @@ def main():
         else:
             left_alias = st.session_state.left_model_alias
         
-        st.text_input(f"Ask `{left_alias}`:", placeholder="Hit ENTER when done", key="input_a", on_change=begin_conversation)
+        st.text_area(f"Ask `{left_alias}`:", placeholder="Hit ENTER when done", key="input_a", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
     with ask_right:
         st.markdown('<div class="ask-right">', unsafe_allow_html=True)
@@ -199,7 +199,7 @@ def main():
         else:
             right_alias = st.session_state.right_model_alias
 
-        st.text_input(f"Ask `{right_alias}`:", placeholder="Hit ENTER when done", key="input_b", on_change=begin_conversation)
+        st.text_area(f"Ask `{right_alias}`:", placeholder="Hit ENTER when done", key="input_b", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
     with initial_prompt_box:
         st.markdown('<div class="initial-prompt">', unsafe_allow_html=True)
@@ -219,6 +219,8 @@ def main():
         left_sys_prompt = st.text_area("System prompt:", value=st.session_state.left_system_prompt, placeholder=f"Give a role to {st.session_state.left_model_alias}", height=300)
         update_system_prompts(left_sys_prompt, "left")
         st.session_state.show_clear_button = False
+        if st.button("🗑", key="left_trash"):
+            update_system_prompts("", "left")
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
         st.markdown('<div class="model-right">', unsafe_allow_html=True)
@@ -226,6 +228,8 @@ def main():
         right_sys_prompt = st.text_area("System prompt:", value=st.session_state.right_system_prompt, placeholder=f"Give a role to {st.session_state.right_model_alias}", height=300)
         update_system_prompts(right_sys_prompt, "right")
         st.session_state.show_clear_button = False
+        if st.button("🗑", key="right_trash"):
+            update_system_prompts("", "right")
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
         with st.container(height=CHAT_SPACE_HEIGHT, border=False):
