@@ -144,6 +144,8 @@ def main():
         st.session_state["conversation_log"] = { "left_model_log": [], "right_model_log": [] }
     if "show_clear_button" not in st.session_state:
         st.session_state["show_clear_button"] = False
+    if "show_pause_button" not in st.session_state:
+        st.session_state["show_pause_button"] = False
 
     # Hide sidebar when conversation is ongoing
     if st.session_state.talk_started:
@@ -219,7 +221,7 @@ def main():
         left_sys_prompt = st.text_area("System prompt:", value=st.session_state.left_system_prompt, placeholder=f"Give a role to {st.session_state.left_model_alias}", height=300)
         update_system_prompts(left_sys_prompt, "left")
         st.session_state.show_clear_button = False
-        if st.button("🗑", key="left_trash"):
+        if st.button("🗑", key="left_trash", help="clear system prompt"):
             update_system_prompts("", "left")
         st.markdown("</div>", unsafe_allow_html=True)
     with model_right:
@@ -228,7 +230,7 @@ def main():
         right_sys_prompt = st.text_area("System prompt:", value=st.session_state.right_system_prompt, placeholder=f"Give a role to {st.session_state.right_model_alias}", height=300)
         update_system_prompts(right_sys_prompt, "right")
         st.session_state.show_clear_button = False
-        if st.button("🗑", key="right_trash"):
+        if st.button("🗑", key="right_trash", help="clear system prompt"):
             update_system_prompts("", "right")
         st.markdown("</div>", unsafe_allow_html=True)
     with chat_area:
@@ -261,7 +263,11 @@ def main():
                         model_full_message += chunk['message']['content']
                         embedded_styles.render_model_response(model_full_message, placeholder, model_side)
                         time.sleep(0.15)
-                    
+
+                    # show Pause button
+                    if not st.session_state.show_pause_button:
+                        st.session_state.show_pause_button = True
+
                     # update conversation log for the model we just ran inference on
                     if st.session_state.use_context:
                         #    1) set current_prompt as user's content
@@ -277,7 +283,8 @@ def main():
                     current_system_prompt = st.session_state.right_system_prompt if current_model_alias == st.session_state.left_model_alias else st.session_state.left_system_prompt
                     # update the model for the next turn
                     current_model_alias = st.session_state.right_model_alias if current_model_alias == st.session_state.left_model_alias else st.session_state.left_model_alias
-                
+
+
                 st.session_state.talk_started = False
                 st.session_state.show_clear_button = True
 
