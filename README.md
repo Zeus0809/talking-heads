@@ -57,5 +57,5 @@ These constraints also blocked the implementation of some features—like a **Pa
 
 ---
 
-To try the app, send me an email at [ikkit2002@gmail.com](mailto:ikkit2002@gmail.com) or DM me on [LinkedIn](www.linkedin.com/in/illia-kozlov-6828b7291).
+To try the app, send me an email at [ikkit2002@gmail.com](mailto:ikkit2002@gmail.com) or DM me on [LinkedIn](https://www.linkedin.com/in/illia-kozlov-6828b7291/).
 
