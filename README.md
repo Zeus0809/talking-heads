@@ -2,6 +2,8 @@
 
 **Talking Heads AI** is a lightweight web application built with [Streamlit](https://streamlit.io), a Python-based UI framework commonly used for data-driven projects. It enables interactive conversations between two locally hosted large language models (LLMs) powered by [Ollama](https://ollama.com). Users can customize each model’s system prompt and control conversation flow, including turn limits and context retainment.
 
+Watch the [demo](https://youtu.be/tkb-buwRCmI) here.
+
 ---
 
 ## 🧠 Backend Structure
