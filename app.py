@@ -144,8 +144,6 @@ def main():
         st.session_state["conversation_log"] = { "left_model_log": [], "right_model_log": [] }
     if "show_clear_button" not in st.session_state:
         st.session_state["show_clear_button"] = False
-    if "show_pause_button" not in st.session_state:
-        st.session_state["show_pause_button"] = False
 
     # Hide sidebar when conversation is ongoing
     if st.session_state.talk_started:
@@ -191,7 +189,7 @@ def main():
         else:
             left_alias = st.session_state.left_model_alias
         
-        st.text_area(f"Ask `{left_alias}`:", placeholder="Hit ENTER when done", key="input_a", on_change=begin_conversation)
+        st.text_input(f"Ask `{left_alias}`:", placeholder="Hit ENTER when done", key="input_a", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
     with ask_right:
         st.markdown('<div class="ask-right">', unsafe_allow_html=True)
@@ -201,7 +199,7 @@ def main():
         else:
             right_alias = st.session_state.right_model_alias
 
-        st.text_area(f"Ask `{right_alias}`:", placeholder="Hit ENTER when done", key="input_b", on_change=begin_conversation)
+        st.text_input(f"Ask `{right_alias}`:", placeholder="Hit ENTER when done", key="input_b", on_change=begin_conversation)
         st.markdown("</div>", unsafe_allow_html=True)
     with initial_prompt_box:
         st.markdown('<div class="initial-prompt">', unsafe_allow_html=True)
@@ -220,7 +218,6 @@ def main():
         st.pills("Pick a model:", st.session_state.model_data["left_group"].keys(), selection_mode="single", key="left_model_alias", on_change=clear_conversation_log)
         left_sys_prompt = st.text_area("System prompt:", value=st.session_state.left_system_prompt, placeholder=f"Give a role to {st.session_state.left_model_alias}", height=300)
         update_system_prompts(left_sys_prompt, "left")
-        st.session_state.show_clear_button = False
         if st.button("🗑", key="left_trash", help="clear system prompt"):
             update_system_prompts("", "left")
         st.markdown("</div>", unsafe_allow_html=True)
@@ -229,7 +226,6 @@ def main():
         st.pills("Pick a model:", st.session_state.model_data["right_group"].keys(), selection_mode="single", key="right_model_alias", on_change=clear_conversation_log)
         right_sys_prompt = st.text_area("System prompt:", value=st.session_state.right_system_prompt, placeholder=f"Give a role to {st.session_state.right_model_alias}", height=300)
         update_system_prompts(right_sys_prompt, "right")
-        st.session_state.show_clear_button = False
         if st.button("🗑", key="right_trash", help="clear system prompt"):
             update_system_prompts("", "right")
         st.markdown("</div>", unsafe_allow_html=True)
@@ -263,10 +259,6 @@ def main():
                         model_full_message += chunk['message']['content']
                         embedded_styles.render_model_response(model_full_message, placeholder, model_side)
                         time.sleep(0.15)
-
-                    # show Pause button
-                    if not st.session_state.show_pause_button:
-                        st.session_state.show_pause_button = True
 
                     # update conversation log for the model we just ran inference on
                     if st.session_state.use_context:
@@ -306,6 +298,7 @@ def main():
             pprint.pprint(dict(st.session_state.conversation_log), stream=f)
             pprint.pprint(dict(st.context.headers), stream=f)
 
+    # st.write(st.session_state)
 
 if __name__ == "__main__":
     main()
