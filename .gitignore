@@ -171,4 +171,4 @@ cython_debug/
 .pypirc
 
 # start-up shell script
-talking_heads.sh
+talking-heads.sh
